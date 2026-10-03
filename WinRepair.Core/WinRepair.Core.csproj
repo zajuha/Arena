@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>WinRepair.Core</RootNamespace>
+    <AssemblyName>WinRepair.Core</AssemblyName>
+    <Version>1.0.0</Version>
+    <Authors>WinRepair Engineering</Authors>
+    <Company>WinRepair</Company>
+    <Product>Ремонт и очистка Windows</Product>
+    <Description>Ядро моделей, контрактов и правил безопасности утилиты «Ремонт и очистка Windows»</Description>
+  </PropertyGroup>
+
+</Project>
