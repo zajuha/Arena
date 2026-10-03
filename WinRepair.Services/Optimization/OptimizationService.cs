@@ -6,6 +6,7 @@ using WinRepair.Core.Abstractions;
 using WinRepair.Core.Models;
 using WinRepair.Core.Safety;
 using WinRepair.Services.Infrastructure;
+using ServiceStartMode = WinRepair.Core.Models.ServiceStartMode;
 
 namespace WinRepair.Services.Optimization;
 

@@ -310,7 +310,7 @@ public sealed class DiagnosticService : IDiagnosticService
                     using (sc)
                     {
                         var isCritical = CriticalServiceNames.Contains(sc.ServiceName, StringComparer.OrdinalIgnoreCase);
-                        var isAuto = sc.StartType == ServiceStartMode.Automatic;
+                        var isAuto = sc.StartType == System.ServiceProcess.ServiceStartMode.Automatic;
                         var isRunning = sc.Status == ServiceControllerStatus.Running;
 
                         if (isCritical || (isAuto && !isRunning))

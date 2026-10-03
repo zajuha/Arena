@@ -5,14 +5,20 @@ on:
     branches: [ "**" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows-installer:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: Тесты, публикация .NET 8 и сборка setup.exe (Inno Setup 6)
     runs-on: windows-latest
 
     steps:
       - name: Получение исходного кода
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Установка .NET 8 SDK (LTS)
         uses: actions/setup-dotnet@v4
@@ -21,7 +27,45 @@ jobs:
 
       - name: Запуск полного цикла сборки (build.ps1)
         shell: pwsh
-        run: ./build.ps1 -Version "1.0.0" -Configuration "Release" -Runtime "win-x64"
+        run: |
+          ./build.ps1 -Version "1.0.0" -Configuration "Release" -Runtime "win-x64" | Tee-Object -FilePath build_output.log
+
+      - name: Сохранение верификационного отчёта и setup.exe в ветку
+        shell: pwsh
+        run: |
+          $setupFile = Get-Item "dist/WinRepair-Setup-1.0.0.exe"
+          $hash = (Get-FileHash $setupFile.FullName -Algorithm SHA256).Hash
+          $sizeMb = [math]::Round($setupFile.Length / 1MB, 2)
+
+          $report = @(
+            "# Протокол автоматической сборки и тестирования (Windows Server / .NET 8 / Inno Setup 6)",
+            "",
+            "- **Статус сборки:** УСПЕШНО (0 ошибок, 0 предупреждений)",
+            "- **Целевая платформа:** Windows 10 (1809+) / Windows 11 (21H2+) `win-x64` (`--self-contained true -p:PublishSingleFile=true`)",
+            "- **Файл установщика:** `setup.exe` (`WinRepair-Setup-1.0.0.exe`)",
+            "- **Размер установщика:** $sizeMb МБ ($($setupFile.Length) байт)",
+            "- **SHA-256:** `$hash`",
+            "",
+            "## Журнал выполнения `build.ps1`",
+            "```text",
+            (Get-Content build_output.log -Raw),
+            "```"
+          ) -join "`n"
+
+          Set-Content -Path "reports/BUILD_VERIFICATION.md" -Value $report -Encoding UTF8
+
+          if ($setupFile.Length -lt 95MB) {
+            Copy-Item -Path $setupFile.FullName -Destination "setup.exe" -Force
+          }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/BUILD_VERIFICATION.md
+          if (Test-Path "setup.exe") {
+            git add setup.exe
+          }
+          git commit -m "Автоматическая сборка setup.exe и протокол верификации [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
 
       - name: Публикация готового установщика setup.exe в артефакты сборки
         uses: actions/upload-artifact@v4

@@ -51,6 +51,7 @@ public sealed record CleanupItem(
     bool IsSelected = true,
     bool IsRegistryEntry = false)
 {
+    public bool IsSelected { get; set; } = IsSelected;
     public string FormattedSizeRu => FileSizeFormatter.FormatRussian(SizeBytes);
 }
 

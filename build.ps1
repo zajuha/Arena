@@ -55,6 +55,8 @@ dotnet publish "$RepoRoot\WinRepair.App\WinRepair.App.csproj" `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:EnableCompressionInSingleFile=true `
+    -p:DebugType=none `
+    -p:DebugSymbols=false `
     -p:Version=$Version `
     -o $PublishDir
 

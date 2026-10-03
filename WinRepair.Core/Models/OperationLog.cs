@@ -214,6 +214,8 @@ public sealed record ProgramRemnantEntry(
     string EvidenceReasonRu,
     bool IsSelected = true)
 {
+    public bool IsSelected { get; set; } = IsSelected;
+
     public string FormattedSizeRu => Kind == RemnantKind.FileSystemFolder
         ? FileSizeFormatter.FormatRussian(SizeBytes)
         : "Ключ / Служба";
