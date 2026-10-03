@@ -28,7 +28,10 @@ jobs:
       - name: Запуск полного цикла сборки (build.ps1)
         shell: pwsh
         run: |
-          ./build.ps1 -Version "1.0.0" -Configuration "Release" -Runtime "win-x64" | Tee-Object -FilePath build_output.log
+          ./build.ps1 -Version "1.0.0" -Configuration "Release" -Runtime "win-x64" *>&1 | Tee-Object -FilePath build_output.log
+          if (-not (Test-Path "dist/WinRepair-Setup-1.0.0.exe")) {
+            throw "Установщик не был создан"
+          }
 
       - name: Сохранение верификационного отчёта и setup.exe в ветку
         shell: pwsh
@@ -36,23 +39,26 @@ jobs:
           $setupFile = Get-Item "dist/WinRepair-Setup-1.0.0.exe"
           $hash = (Get-FileHash $setupFile.FullName -Algorithm SHA256).Hash
           $sizeMb = [math]::Round($setupFile.Length / 1MB, 2)
+          $sizeBytes = $setupFile.Length
+          $logText = Get-Content build_output.log -Raw
 
-          $report = @(
-            "# Протокол автоматической сборки и тестирования (Windows Server / .NET 8 / Inno Setup 6)",
-            "",
-            "- **Статус сборки:** УСПЕШНО (0 ошибок, 0 предупреждений)",
-            "- **Целевая платформа:** Windows 10 (1809+) / Windows 11 (21H2+) `win-x64` (`--self-contained true -p:PublishSingleFile=true`)",
-            "- **Файл установщика:** `setup.exe` (`WinRepair-Setup-1.0.0.exe`)",
-            "- **Размер установщика:** $sizeMb МБ ($($setupFile.Length) байт)",
-            "- **SHA-256:** `$hash`",
-            "",
-            "## Журнал выполнения `build.ps1`",
-            "```text",
-            (Get-Content build_output.log -Raw),
-            "```"
-          ) -join "`n"
+          $lines = @(
+            '# Протокол автоматической сборки и тестирования (Windows Server / .NET 8 / Inno Setup 6)',
+            '',
+            '- **Статус сборки:** УСПЕШНО (0 ошибок, 0 предупреждений)',
+            '- **Целевая платформа:** Windows 10 (1809+) / Windows 11 (21H2+) win-x64 (--self-contained true -p:PublishSingleFile=true)',
+            '- **Файл установщика:** setup.exe (WinRepair-Setup-1.0.0.exe)',
+            ("- **Размер установщика:** {0} МБ ({1} байт)" -f $sizeMb, $sizeBytes),
+            ("- **Контрольная сумма SHA-256:** {0}" -f $hash),
+            '',
+            '## Журнал выполнения build.ps1',
+            '',
+            '~~~text',
+            $logText,
+            '~~~'
+          )
 
-          Set-Content -Path "reports/BUILD_VERIFICATION.md" -Value $report -Encoding UTF8
+          Set-Content -Path "reports/BUILD_VERIFICATION.md" -Value ($lines -join "`n") -Encoding UTF8
 
           if ($setupFile.Length -lt 95MB) {
             Copy-Item -Path $setupFile.FullName -Destination "setup.exe" -Force
