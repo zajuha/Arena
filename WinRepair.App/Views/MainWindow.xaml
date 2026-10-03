@@ -1,0 +1,666 @@
+<ui:FluentWindow x:Class="WinRepair.App.Views.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="Ремонт и очистка Windows"
+                 Width="1280"
+                 Height="820"
+                 MinWidth="1040"
+                 MinHeight="680"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica">
+
+    <Grid AutomationProperties.Name="Главное окно программы Ремонт и очистка Windows">
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="{Binding UiFontScale}" ScaleY="{Binding UiFontScale}" />
+        </Grid.LayoutTransform>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель заголовка Windows 11 -->
+        <ui:TitleBar Grid.Row="0"
+                     Title="Ремонт и очистка Windows — Комплексное обслуживание ОС" />
+
+        <!-- Основная рабочая область: Навигация слева + Контент справа -->
+        <Grid Grid.Row="1" Margin="16,8,16,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Левое меню навигации (в стиле Параметров Windows 11) -->
+            <Border Grid.Column="0"
+                    CornerRadius="12"
+                    Padding="12"
+                    Background="#1E293B">
+                <StackPanel>
+                    <TextBlock Text="РАЗДЕЛЫ СИСТЕМЫ"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="#94A3B8"
+                               Margin="8,4,8,12" />
+
+                    <Button Content="Обзор состояния"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Overview"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="1"
+                            AutomationProperties.Name="Перейти в раздел Обзор состояния" />
+
+                    <Button Content="Очистка системы"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Cleanup"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="2"
+                            AutomationProperties.Name="Перейти в раздел Очистка системы" />
+
+                    <Button Content="Восстановление ОС"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Repair"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="3"
+                            AutomationProperties.Name="Перейти в раздел Восстановление ОС" />
+
+                    <Button Content="Оптимизация и ресурсы"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Optimization"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="4"
+                            AutomationProperties.Name="Перейти в раздел Оптимизация и ресурсы" />
+
+                    <Button Content="Программы и остатки"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Programs"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="5"
+                            AutomationProperties.Name="Перейти в раздел Программы и остатки" />
+
+                    <Button Content="Журнал и карантин"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Journal"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="6"
+                            AutomationProperties.Name="Перейти в раздел Журнал и карантин" />
+
+                    <Button Content="Настройки и расписание"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Settings"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            Margin="0,0,0,6"
+                            TabIndex="7"
+                            AutomationProperties.Name="Перейти в раздел Настройки и расписание" />
+                </StackPanel>
+            </Border>
+
+            <!-- Правая панель контента -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Панель прогресса текущей операции с кнопкой «Отменить» -->
+                <Border Grid.Row="0"
+                        CornerRadius="10"
+                        Padding="14,10"
+                        Margin="0,0,0,12"
+                        Background="#1E293B"
+                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="{Binding CurrentProgressBannerRu}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6" />
+                            <ProgressBar Minimum="0"
+                                         Maximum="100"
+                                         Height="8"
+                                         Value="{Binding CurrentProgressPercent}" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Content="Отменить операцию"
+                                Command="{Binding CancelActiveOperationCommand}"
+                                Padding="14,8"
+                                AutomationProperties.Name="Отменить выполняемую операцию" />
+                    </Grid>
+                </Border>
+
+                <!-- ==================== 1. ЭКРАН «ОБЗОР» ==================== -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Overview}">
+                    <StackPanel>
+                        <Border CornerRadius="12" Padding="20" Background="#1E293B" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="96"
+                                        Height="96"
+                                        CornerRadius="48"
+                                        Background="#0F172A"
+                                        Margin="0,0,20,0">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding Overview.OverallScore}"
+                                                   FontSize="32"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center" />
+                                        <TextBlock Text="из 100"
+                                                   FontSize="11"
+                                                   Foreground="#94A3B8"
+                                                   HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Overview.OverallStatusRu}"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding Overview.LastCheckedAtRu}"
+                                               Foreground="#94A3B8"
+                                               Margin="0,0,0,6" />
+                                    <TextBlock Text="Диагностика работает строго в режиме чтения и не вносит скрытых изменений."
+                                               FontSize="12"
+                                               Foreground="#38BDF8" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Проверить систему"
+                                            Command="{Binding RunDiagnosticScanCommand}"
+                                            Padding="18,12"
+                                            Margin="0,0,10,0"
+                                            FontWeight="SemiBold"
+                                            AutomationProperties.Name="Запустить полную диагностику системы" />
+                                    <Button Content="Исправить всё безопасное"
+                                            Command="{Binding FixAllSafeIssuesCommand}"
+                                            Padding="18,12"
+                                            FontWeight="SemiBold"
+                                            AutomationProperties.Name="Исправить все безопасные проблемы" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Text="Состояние по 10 подсистемам Windows"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10" />
+
+                        <ItemsControl ItemsSource="{Binding Overview.CategoryTiles}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="10"
+                                            Padding="14"
+                                            Margin="0,0,10,10"
+                                            Background="#1E293B">
+                                        <StackPanel>
+                                            <DockPanel Margin="0,0,0,6">
+                                                <TextBlock Text="{Binding TitleRu}" FontWeight="SemiBold" FontSize="14" />
+                                                <TextBlock Text="{Binding Score, StringFormat={}{0}/100}"
+                                                           DockPanel.Dock="Right"
+                                                           HorizontalAlignment="Right"
+                                                           FontWeight="Bold"
+                                                           Foreground="#38BDF8" />
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding SummaryRu}"
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="#94A3B8" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ==================== 2. ЭКРАН «ОЧИСТКА» ==================== -->
+                <Grid Grid.Row="1"
+                      Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Cleanup}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="220" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" CornerRadius="12" Padding="16" Background="#1E293B" Margin="0,0,0,12">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Left">
+                                <TextBlock Text="Очистка системы с обязательным предпросмотром"
+                                           FontSize="18"
+                                           FontWeight="Bold" />
+                                <TextBlock Text="Ни один файл не удаляется без предварительного расчёта размера, проверки по белому списку и показа полного пути."
+                                           FontSize="12"
+                                           Foreground="#94A3B8" />
+                                <CheckBox Content="Перемещать в карантин по умолчанию (рекомендуется для безопасного возврата)"
+                                          IsChecked="{Binding Cleanup.MoveToQuarantine}"
+                                          Margin="0,8,0,0" />
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Content="1. Рассчитать предпросмотр"
+                                        Command="{Binding PreviewCleanupCommand}"
+                                        Padding="16,10"
+                                        Margin="0,0,8,0" />
+                                <Button Content="2. Очистить выбранное"
+                                        Command="{Binding ExecuteCleanupCommand}"
+                                        IsEnabled="{Binding Cleanup.IsPreviewReady}"
+                                        Padding="16,10"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Поиск больших файлов и дубликатов"
+                                        Command="{Binding ScanLargeAndDuplicatesCommand}"
+                                        Padding="14,10" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Список 10 модулей очистки -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Cleanup.Modules}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Margin="0,0,0,12">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="Выбрать" Binding="{Binding IsSelected}" Width="80" />
+                            <DataGridTextColumn Header="Модуль очистки" Binding="{Binding NameRu}" Width="260" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Уровень риска" Binding="{Binding RiskDisplayRu}" Width="140" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Объём к очистке" Binding="{Binding PreviewSizeSummaryRu}" Width="150" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Что очищается" Binding="{Binding DescriptionRu}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Таблица обязательного предпросмотра конкретных файлов -->
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Cleanup.PreviewItems}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="Удалить" Binding="{Binding IsSelected}" Width="80" />
+                            <DataGridTextColumn Header="Модуль" Binding="{Binding ModuleNameRu}" Width="220" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Размер" Binding="{Binding FormattedSizeRu}" Width="110" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Полный путь файла / объекта" Binding="{Binding FullPath}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <!-- ==================== 3. ЭКРАН «ВОССТАНОВЛЕНИЕ» ==================== -->
+                <Grid Grid.Row="1"
+                      Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Repair}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="380" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <ListBox Grid.Column="0"
+                             ItemsSource="{Binding Repair.Modules}"
+                             SelectedItem="{Binding Repair.SelectedModule}"
+                             DisplayMemberPath="NameRu" />
+
+                    <Border Grid.Column="2" CornerRadius="12" Padding="20" Background="#1E293B">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Repair.SelectedModule.NameRu}"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding Repair.SelectedModule.DescriptionRu}"
+                                       TextWrapping="Wrap"
+                                       Foreground="#94A3B8"
+                                       Margin="0,0,0,12" />
+                            <TextBlock Text="{Binding Repair.SelectedModule.RiskDisplayRu, StringFormat=Уровень риска: {0}}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#F59E0B"
+                                       Margin="0,0,0,12" />
+
+                            <StackPanel Visibility="{Binding Repair.SelectedModule.IsHighRisk, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Операция высокого риска: для подтверждения введите контрольную фразу вручную:"
+                                           Foreground="#F87171"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Repair.SelectedModule.ConfirmationPhraseRu}"
+                                           FontWeight="Bold"
+                                           Margin="0,4,0,6" />
+                                <TextBox Text="{Binding Repair.ConfirmationPhraseInput, UpdateSourceTrigger=PropertyChanged}"
+                                         AutomationProperties.Name="Поле ввода контрольной фразы подтверждения" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,16">
+                                <Button Content="Проверить и показать команды"
+                                        Command="{Binding PrepareRepairPreviewCommand}"
+                                        Padding="16,10"
+                                        Margin="0,0,10,0" />
+                                <Button Content="Выполнить восстановление"
+                                        Command="{Binding ExecuteRepairCommand}"
+                                        Padding="16,10" />
+                            </StackPanel>
+
+                            <TextBlock Text="Журнал вывода системных команд (SFC / DISM / netsh / bcdedit):"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6" />
+                            <TextBox Text="{Binding Repair.LastRepairOutputLogRu}"
+                                     IsReadOnly="True"
+                                     Height="240"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ==================== 4. ЭКРАН «ОПТИМИЗАЦИЯ» ==================== -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Optimization}">
+                    <StackPanel>
+                        <Border CornerRadius="12" Padding="16" Background="#1E293B" Margin="0,0,0,12">
+                            <DockPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Оптимизация автозагрузки, служб, питания и памяти"
+                                               FontSize="18"
+                                               FontWeight="Bold" />
+                                    <TextBlock Text="{Binding Optimization.MemoryTrimTechnicalNoteRu}"
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               Foreground="#94A3B8"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button Content="Очистить рабочий набор ОЗУ"
+                                            Command="{Binding TrimMemoryWorkingSetCommand}"
+                                            Padding="14,10"
+                                            Margin="0,0,8,0" />
+                                    <Button Content="Визуальные эффекты: Быстродействие"
+                                            Command="{Binding OptimizeVisualFxPerformanceCommand}"
+                                            Padding="14,10"
+                                            Margin="0,0,8,0" />
+                                    <Button Content="Визуальные эффекты: По умолчанию"
+                                            Command="{Binding RestoreDefaultVisualFxCommand}"
+                                            Padding="14,10" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <TextBlock Text="Элементы автозагрузки (Реестр Run/RunOnce и папка «Автозагрузка»)"
+                                   FontWeight="SemiBold"
+                                   Margin="0,4,0,8" />
+                        <DataGrid ItemsSource="{Binding Optimization.StartupEntries}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  Height="200"
+                                  Margin="0,0,0,16">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Включено" Binding="{Binding IsEnabled, Mode=OneWay}" Width="90" />
+                                <DataGridTextColumn Header="Программа" Binding="{Binding Name}" Width="220" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Влияние на запуск" Binding="{Binding ImpactDisplayRu}" Width="160" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Источник" Binding="{Binding SourceLocationDisplayRu}" Width="260" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Команда" Binding="{Binding CommandOrTarget}" Width="*" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Рекомендации по системным службам (с резервной копией реестра)"
+                                   FontWeight="SemiBold"
+                                   Margin="0,4,0,8" />
+                        <DataGrid ItemsSource="{Binding Optimization.Services}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  Height="220">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Служба" Binding="{Binding DisplayNameRu}" Width="280" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Состояние" Binding="{Binding CurrentStatusRu}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Рекомендация" Binding="{Binding RecommendationReasonRu}" Width="*" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ==================== 5. ЭКРАН «ПРОГРАММЫ» ==================== -->
+                <Grid Grid.Row="1"
+                      Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Programs}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="200" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" CornerRadius="12" Padding="14" Background="#1E293B" Margin="0,0,0,12">
+                        <DockPanel>
+                            <TextBox Width="320"
+                                     Text="{Binding Programs.SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="Поиск по установленным программам"
+                                     Margin="0,0,12,0" />
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <Button Content="Обновить список"
+                                        Command="{Binding LoadProgramsCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Запустить штатный деинсталлятор"
+                                        Command="{Binding UninstallSelectedProgramCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Найти остатки удалённых программ"
+                                        Command="{Binding ScanProgramRemnantsCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Удалить выбранные остатки"
+                                        Command="{Binding RemoveConfirmedRemnantsCommand}"
+                                        Padding="14,8" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Programs.FilteredPrograms}"
+                              SelectedItem="{Binding Programs.SelectedProgram}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Margin="0,0,0,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название программы" Binding="{Binding DisplayName}" Width="300" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Издатель" Binding="{Binding Publisher}" Width="220" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Версия" Binding="{Binding DisplayVersion}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Размер" Binding="{Binding FormattedSizeRu}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Дата установки" Binding="{Binding FormattedInstallDateRu}" Width="130" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Programs.DiscoveredRemnants}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="Выбрать" Binding="{Binding IsSelected}" Width="80" />
+                            <DataGridTextColumn Header="Бывшая программа" Binding="{Binding FormerApplicationName}" Width="200" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Тип остатка" Binding="{Binding KindDisplayRu}" Width="200" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Путь или ключ реестра" Binding="{Binding PathOrKey}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <!-- ==================== 6. ЭКРАН «ЖУРНАЛ И КАРАНТИН» ==================== -->
+                <Grid Grid.Row="1"
+                      Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Journal}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="220" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" CornerRadius="12" Padding="14" Background="#1E293B" Margin="0,0,0,12">
+                        <DockPanel>
+                            <TextBlock Text="Журнал всех операций, карантин и экспорт отчётов"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <Button Content="Откатить выбранную операцию"
+                                        Command="{Binding RollbackSelectedOperationCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Восстановить пакет из карантина"
+                                        Command="{Binding RestoreSelectedQuarantineBatchCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Экспорт отчёта в HTML"
+                                        Command="{Binding ExportHtmlReportCommand}"
+                                        Padding="14,8"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Экспорт отчёта в JSON"
+                                        Command="{Binding ExportJsonReportCommand}"
+                                        Padding="14,8" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Journal.Operations}"
+                              SelectedItem="{Binding Journal.SelectedOperation}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Margin="0,0,0,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Операция" Binding="{Binding TitleRu}" Width="240" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding OutcomeRu}" Width="140" IsReadOnly="True" />
+                            <DataGridCheckBoxColumn Header="Доступен откат" Binding="{Binding CanRollback, Mode=OneWay}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Подробности" Binding="{Binding DescriptionRu}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Journal.QuarantineBatches}"
+                              SelectedItem="{Binding Journal.SelectedQuarantineBatch}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Идентификатор карантина" Binding="{Binding BatchId}" Width="240" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Дата" Binding="{Binding DateFolder}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Модуль" Binding="{Binding ModuleNameRu}" Width="260" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Файлов в пакете" Binding="{Binding Items.Count}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <!-- ==================== 7. ЭКРАН «НАСТРОЙКИ» ==================== -->
+                <Border Grid.Row="1"
+                        CornerRadius="12"
+                        Padding="24"
+                        Background="#1E293B"
+                        Visibility="{Binding CurrentSection, Converter={StaticResource SectionToVis}, ConverterParameter=Settings}">
+                    <StackPanel MaxWidth="640" HorizontalAlignment="Left">
+                        <TextBlock Text="Настройки приложения и планировщик очистки"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,16" />
+
+                        <CheckBox Content="Использовать тёмную тему оформления Windows 11"
+                                  IsChecked="{Binding Settings.IsDarkTheme}"
+                                  Margin="0,0,0,12" />
+
+                        <TextBlock Text="Масштабирование шрифта интерфейса (для доступности):"
+                                   Margin="0,0,0,6" />
+                        <Slider Minimum="0.95"
+                                Maximum="1.35"
+                                Value="{Binding Settings.FontScaleFactor}"
+                                TickFrequency="0.05"
+                                IsSnapToTickEnabled="True"
+                                Margin="0,0,0,16" />
+
+                        <CheckBox Content="Помещать удаляемые файлы в карантин (%ProgramData%\WinRepair\Quarantine)"
+                                  IsChecked="{Binding Settings.UseQuarantineByDefault}"
+                                  Margin="0,0,0,12" />
+
+                        <CheckBox Content="Включить автоматическую еженедельную безопасную очистку через Планировщик заданий Windows"
+                                  IsChecked="{Binding Settings.ScheduleEnabled}"
+                                  Margin="0,0,0,16" />
+
+                        <Button Content="Сохранить настройки и применить расписание"
+                                Command="{Binding SaveSettingsCommand}"
+                                Padding="18,10"
+                                HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Нижняя строка сводки результата -->
+        <Border Grid.Row="2"
+                Background="#0F172A"
+                Padding="18,10"
+                BorderBrush="#334155"
+                BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding SummaryBannerRu}"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="#E2E8F0" />
+        </Border>
+
+        <!-- Модальное окно первого запуска (п. 5 ТЗ) -->
+        <Border Grid.Row="0"
+                Grid.RowSpan="3"
+                Background="#CC0F172A"
+                Visibility="{Binding IsFirstRunDialogVisible, Converter={StaticResource BoolToVis}}">
+            <Border Width="580"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    CornerRadius="14"
+                    Padding="28"
+                    Background="#1E293B"
+                    BorderBrush="#38BDF8"
+                    BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Добро пожаловать в «Ремонт и очистка Windows»"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Margin="0,0,0,12" />
+                    <TextBlock TextWrapping="Wrap"
+                               Margin="0,0,0,10"
+                               Text="Эта утилита предназначена для безопасной диагностики, очистки от временного мусора, восстановления системных компонентов (DISM, SFC, сети, Центра обновления) и оптимизации автозагрузки." />
+                    <TextBlock TextWrapping="Wrap"
+                               Foreground="#38BDF8"
+                               Margin="0,0,0,16"
+                               Text="Правила безопасности программы:&#x0a;1. Права администратора используются исключительно для системных вызовов Windows.&#x0a;2. Перед первой изменяющей операцией автоматически создаётся точка восстановления.&#x0a;3. Все удаляемые файлы показываются в предпросмотре и перемещаются в карантин.&#x0a;4. Программа работает полностью автономно и не отправляет никаких данных в сеть." />
+                    <Button Content="Понятно, приступить к работе"
+                            Command="{Binding CompleteFirstRunCommand}"
+                            Padding="20,10"
+                            HorizontalAlignment="Right"
+                            FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</ui:FluentWindow>
