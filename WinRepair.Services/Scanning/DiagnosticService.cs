@@ -703,7 +703,7 @@ public sealed class DiagnosticService : IDiagnosticService
             {
                 var mediaType = disk["MediaType"] is ushort mt ? mt : (ushort)0;
                 var busType = disk["BusType"] is ushort bt ? bt : (ushort)0;
-                var label = bt == 17 ? "NVMe SSD" : mediaType switch
+                var label = busType == 17 ? "NVMe SSD" : mediaType switch
                 {
                     3 => "HDD (Жёсткий диск)",
                     4 => "SSD (Твердотельный накопитель)",

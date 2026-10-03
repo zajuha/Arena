@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using WinRepair.Core.Abstractions;
 using WinRepair.Core.Diagnostics;
 using WinRepair.Core.Models;
+using WinRepair.Core.Safety;
 
 namespace WinRepair.Services.Reporting;
 
